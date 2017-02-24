@@ -1,23 +1,39 @@
-# Nengo Example: A Simple Harmonic Oscillator
-#
-# This demo implements a simple harmonic oscillator in a 2D neural
-# population.  The oscillator is more visually interesting on its own than
-# the integrator, but the principle at work is the same. Here, instead of
-# having the recurrent input just integrate (i.e. feeding the full input
-# value back to the population), we have two dimensions which interact.
+# Tutorial 13: Oscillators
+
+# If we do differential equations in multiple dimensions, we can get
+# oscillators.  This gives an Ensemble of neurons that can produce patterns
+# of behaviour all on its own without any external input.  For example, here
+# is a standard cycle in two dimensions:
+#    dx0/dt = -x1 * s + x0 * (r - x0**2 - x1**2)
+#    dx1/dt =  x0 * s + x1 * (r - x0**2 - x1**2)
+# where r is the radius of the circle and s is the speed (in radians per second).
+
+# As discussed in the previous tutorial, we can convert this into a Nengo
+# model.  In this case there is no input connection, so all we have to do
+# is multiply by the synapse and add the original value.
+
+# Here we introduce a new kind of plot.  The XY-value plot shows the same
+# information as the normal Value plot, but plots the two dimensions together
+# rather than using time to be the x-axis.  This can be convenient for
+# representing multidimensional data.
+
+# Try adjusting the r value to 0.5.  Try 1.5.  What about 0?
+# Try adjusting the speed s.  What happens when it is very slow (0.5)?  0.1?
 
 import nengo
 
 model = nengo.Network()
 with model:
-    # Create the ensemble for the oscillator
-    neurons = nengo.Ensemble(n_neurons=200, dimensions=2)
 
-    # Create an input signal that gives a brief input pulse to start the
-    # oscillator
-    stim = nengo.Node(lambda t: 1 if t < 0.1 else 0)
-    # Connect the input signal to the neural ensemble
-    nengo.Connection(stim, neurons[0])
+    x = nengo.Ensemble(n_neurons=200, dimensions=2)
 
-    # Create the feedback connection
-    nengo.Connection(neurons, neurons, transform=[[1, 1], [-1, 1]], synapse=0.1)
+    synapse = 0.1
+    def oscillator(x):
+        r = 1
+        s = 6
+        return [synapse * (-x[1] * s + x[0] * (r - x[0]**2 - x[1]**2)) + x[0],
+                synapse * ( x[0] * s + x[1] * (r - x[0]**2 - x[1]**2)) + x[1]]
+
+    nengo.Connection(x, x, synapse=synapse, function=oscillator)
+
+
