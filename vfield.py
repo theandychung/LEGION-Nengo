@@ -2,7 +2,7 @@ import numpy as np
 import Constants
 
 
-def plotdf(ax, f, xran=[-5, 5], yran=[-5, 5], grid=[21, 21], color='k'):
+def VectorField(ax, f, xran=[-5, 5], yran=[-5, 5], grid=[21, 21], color='k'):
     """
     Plot the direction field for an ODE written in the form
         x' = F(x,y)
@@ -55,5 +55,4 @@ def plotdf(ax, f, xran=[-5, 5], yran=[-5, 5], grid=[21, 21], color='k'):
 # plt.plot(X,gamma * (1 + np.tanh(X / beta)),label='y-nullcline',color='r')
 #
 # plt.show()
-
-# from https://gist.github.com/nicoguaro/6767643
+# reference https://gist.github.com/nicoguaro/6767643

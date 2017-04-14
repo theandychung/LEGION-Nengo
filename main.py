@@ -1,5 +1,5 @@
 #<editor-fold desc="...import">
-from plotdf import plotdf
+from vfield import VectorField
 import matplotlib.pyplot as plt
 import numpy as np
 import Constants
@@ -62,7 +62,7 @@ ax2.plot(X,3.*X-X**3+2+Constants.I,label='x-nullcline',color='b')
 ax2.plot(X,Constants.gamma * (1 + np.tanh(X / Constants.beta)),label='y-nullcline',color='r')
 
 vecterfield = ["3 * X - X**3 + 2 - Y", "Constants.epsilon * (Constants.gamma * (1 + np.tanh(X / Constants.beta)) - Y)"]
-plotdf(ax2, vecterfield, xran=[xmin, xmax], yran=[ymin, ymax])
+VectorField(ax2, vecterfield, xran=[xmin, xmax], yran=[ymin, ymax])
 
 ax2.set_title("Phase Plane")
 ax2.set_xlabel("x activity")
