@@ -1,3 +1,5 @@
+from nengo.utils.functions import piecewise
+
 I =.5
 epsilon=.2
 gamma=6.0
