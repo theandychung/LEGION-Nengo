@@ -1,38 +1,38 @@
 
 
-#<editor-fold desc="...import">
+
 from vfield import VectorField
 import matplotlib.pyplot as plt
-import numpy as np
 import Constants
+import numpy as np
 import nengo
 from nengo.utils.functions import piecewise
-#</editor-fold>
 # plt.close('all')
 
-def Oscillator(num_neurons=500, tau=9, net=None):
+
+def oscillator(num_neurons= 200, tau=9, net=None):
     if net is None:
         net = nengo.Network()
     with net:
-        net.input = nengo.Node(size_in=1)
-        net.ensemble = nengo.Ensemble(n_neurons=num_neurons,
-                                    dimensions=2,
-                                    radius=8)
+        # net.input = nengo.Node(size_in= 1)
+        net.ensemble = nengo.Ensemble(
+            n_neurons= num_neurons, dimensions= 2, radius= 8)
 
         # osc to osc connection
         def feedback(x):
-            x, y = x
-            dx = 3 * x - x ** 3 + 2 - y
+            x, y = x#, x_avg
+            dx = 3 * x - x ** 3 + 2 - y + np.random.normal(0,1,None)
             dy = Constants.epsilon * (Constants.gamma * (1 + np.tanh(x / Constants.beta)) - y)
-            return [tau * dx + x, tau * dy + y]
+            return [tau * dx + x, tau * dy + y]#, tau*x+.01*x_avg
 
-        nengo.Connection(net.ensemble, net.ensemble, function=feedback, synapse=tau)
+        nengo.Connection(net.ensemble, net.ensemble, function= feedback, synapse= tau)
         # inp to osc connection
-        nengo.Connection(net.input, net.ensemble[0], transform=tau)
+        # nengo.Connection(net.input, net.ensemble[0], transform= tau, synapse= tau)
     return net
 
-def test_oscillator(net,osc,time, dt=0.001):
-    # test_oscillator(net,net.oscB)
+
+def test_oscillator(net,osc,time=5, vectorfield = False):
+    # ex: test_oscillator(net,net.oscB)
     with net:
         piecewise_f = piecewise({0:-1,
                                  0.2:0})
@@ -41,7 +41,8 @@ def test_oscillator(net,osc,time, dt=0.001):
         input_probe = nengo.Probe(piecewise_inp)
         x_pr = nengo.Probe(osc.ensemble[0], synapse=0.01)
         y_pr = nengo.Probe(osc.ensemble[1], synapse=0.01)
-    with nengo.Simulator(net,dt=dt,seed=122) as sim:
+        x_avg_pr = nengo.Probe(osc.ensemble[2], synapse=0.01)
+    with nengo.Simulator(net) as sim:
         sim.run(time)
     # <editor-fold desc="...plot">
     t = sim.trange()
@@ -51,6 +52,7 @@ def test_oscillator(net,osc,time, dt=0.001):
     ax1.plot(t, sim.data[input_probe], label="input", color='k')
     ax1.plot(t, sim.data[x_pr], label="x activity", color='b')
     ax1.plot(t, sim.data[y_pr], label="y activity", color='r')
+    ax1.plot(t, sim.data[x_avg_pr], label="x_avg", color='#3d6305')
     ax1.set_title("Activities of the Oscillator")
     ax1.set_xlabel("Time (s)")
     ax1.set_ylabel("x&y activities")
@@ -64,11 +66,10 @@ def test_oscillator(net,osc,time, dt=0.001):
     X = np.linspace(xmin, xmax)
     ax2.plot(X, 3. * X - X ** 3 + 2 + Constants.I, label='x-nullcline', color='b')
     ax2.plot(X, Constants.gamma * (1 + np.tanh(X / Constants.beta)), label='y-nullcline', color='r')
-
-    vecterfield = ["3 * X - X**3 + 2 - Y",
-                   "Constants.epsilon * (Constants.gamma * (1 + np.tanh(X / Constants.beta)) - Y)"]
-    VectorField(ax2, vecterfield, xran=[xmin, xmax], yran=[ymin, ymax])
-
+    if vectorfield==True:
+        vecterfield = ["3 * X - X**3 + 2 - Y",
+            "Constants.epsilon * (Constants.gamma * (1 + np.tanh(X / Constants.beta)) - Y)"]
+        VectorField(ax2, vecterfield, xran=[xmin, xmax], yran=[ymin, ymax])
     ax2.set_title("Phase Plane")
     ax2.set_xlabel("x activity")
     ax2.set_ylabel("y activity")
@@ -82,28 +83,31 @@ def test_oscillator(net,osc,time, dt=0.001):
     # plt.legend(['$x_0$', '$x_1$', '$\omega$']);
     # </editor-fold>
 
-def Inhibitor(num_neurons=150, tau=2.5, net=None):
+
+def inhibitor(num_neurons=150, tau=2.5, net=None):
     if net is None:
         net = nengo.Network()
     with net:
-        net.input = nengo.Node(size_in=1)
+        net.input = nengo.Node(size_in=1)#, output=lambda t, x: 1 if x >= .9 else 0
         net.ensemble = nengo.Ensemble(n_neurons=num_neurons,
                                       dimensions=1,
                                       radius=1)
-        nengo.Connection(net.input, net.ensemble, transform= [tau * Constants.phi], synapse=tau)
-        nengo.Connection(net.ensemble, net.ensemble, transform=[-tau * Constants.phi + 1], synapse=tau)
+        nengo.Connection(net.input, net.ensemble, transform= tau* Constants.phi, synapse=tau)
+        nengo.Connection(net.ensemble, net.ensemble, transform= [-tau*Constants.phi+1], synapse=tau)
     return net
+
 
 def testinhib(net, inhib, T=10, dt=0.001):
     with net:
         piecewise_f = piecewise({0:1,
                                  5:0,
-                                 10:2,
+                                 10:1,
                                  15:0,
-                                 20:-1,
+                                 20:3,
                                  25:0})
         piecewise_inp = nengo.Node(piecewise_f)
         nengo.Connection(piecewise_inp, inhib.input)
+        piecewise_inp_probe = nengo.Probe(piecewise_inp,synapse=0.01)
         input_probe = nengo.Probe(inhib.input, synapse=0.01)
         z_pr = nengo.Probe(inhib.ensemble, synapse=0.01)
     with nengo.Simulator(net,dt=dt) as sim:
@@ -112,6 +116,7 @@ def testinhib(net, inhib, T=10, dt=0.001):
     t = sim.trange()
     # z activities
     plt.figure()
+    plt.plot(t, sim.data[piecewise_inp_probe], label="piecewise_inp_probe", color='r')
     plt.plot(t, sim.data[input_probe], label="input", color='k')
     plt.plot(t, sim.data[z_pr], label="z activity", color='b')
     plt.title("Activities of the Oscillator")
@@ -125,26 +130,25 @@ def testinhib(net, inhib, T=10, dt=0.001):
     # plt.legend(['$x_0$', '$x_1$', '$\omega$']);
     # </editor-fold>
 
-#
-# def S_f(x, theta):
-#     s = 1 / (1 + np.exp(-Constants.kappa * (x - theta)))
-#     return s
-#
-# def LocalConnect(A,B):
-#     def T_f( xi_f, xi_t, xj_f, xj_t,sigma_t,sigma_f):
-#         W_permanent = np.exp(-(xj_t - xi_t)**2 / Constants.sigma_t**2 + (xj_f - xi_f)**2 / Constants.sigma_f**2)
-#         return W_permanent
 
-def Inhib2LocalConnect(num_neurons,Inh,Local,tau):
+def s_f(x, theta):
+    s = 1 / (1 + np.exp(-Constants.kappa * (x - theta)))
+    return s
+
+def inhib2local_connect(num_neurons, Inh, Local, tau):
     #connection from inhib to local oscillators
-    # def W1(z):
-    #     new=S_f(z,Constants.theta_1)
-    #     return new*num_neurons
-    def justfunction(x):
-        return x*[-2.5 for i in range(num_neurons)]
-    nengo.Connection(Inh, Local.neurons, function=justfunction, synapse=tau)
 
-def Local2InhibConnect(Local,Inh,tau):
+    def weight(x):
+        # s = 1 / (1 + np.exp(-Constants.kappa * (x - Constants.theta_1)))
+        # new=s_f(z, Constants.theta_1)
+        return -Constants.W1*s_f(x,Constants.theta_1)
+    # def justfunction(x):
+    #     return x*[-2.5 for i in range(num_neurons)]
+    # nengo.Connection(Inh, Local.neurons, function=justfunction, synapse=tau)
+    nengo.Connection(Inh, Local, function= weight, synapse = tau)
+
+
+def local2inhib_connect(Local, Inh, tau):
     def justfun(x):
         if x >= Constants.theta_z:
             x = 1
@@ -152,44 +156,98 @@ def Local2InhibConnect(Local,Inh,tau):
             x = 0
         return x
     nengo.Connection(Local,Inh, function=justfun, synapse=tau)
+    # nengo.Connection(Local, Inh, synapse=tau)
+
+def local2local_connect(Local1, Local2, tau):
+    nengo.Connection(Local1, Local2, transform= Constants.W0, synapse=tau)
+
 
 # net = nengo.Network(label="withseed",seed=124)
 net = nengo.Network(label="withoutseed")
 with net:
-    net.config[nengo.Ensemble].neuron_type = nengo.LIFRate()
-    num = 400
-    tau = 9
-    net.oscA = Oscillator(num,tau)
-    # net.oscB = Oscillator(num, tau)
-    test_oscillator(net, net.oscA, 30)
-    # test_oscillator(net, net.oscB, 30)
+    net.config[nengo.Ensemble].neuron_type = nengo.Direct()
+    num = 1 #num doesn't matter when we are using nengo.Direct()
+    tau = 2.0
+#components
+    net.oscA = oscillator(num, tau)
+    net.oscB = oscillator(num, tau)
+    net.oscC = oscillator(num, tau)
+    net.oscD = oscillator(num, tau)
+    # test_oscillator(net, net.oscA, 40)
+    # test_oscillator(net, net.oscB, 20)
 
-
-    net.inhib = Inhibitor(num,tau)
+    net.inhib = inhibitor(num, tau)
     # testinhib(net, net.inhib, 40)
 
-    Inhib2LocalConnect(num, net.inhib.ensemble, net.oscA.ensemble, tau)
-    Inhib2LocalConnect(num, net.inhib.ensemble, net.oscB.ensemble, tau)
-    Local2InhibConnect(net.oscA.ensemble[0], net.inhib.input,tau)
-    Local2InhibConnect(net.oscB.ensemble[0], net.inhib.input,tau)
+#connections
+    #inhib
+    inhib2local_connect(num, net.inhib.ensemble, net.oscA.ensemble[0], tau) #
+    inhib2local_connect(num, net.inhib.ensemble, net.oscB.ensemble[0], tau)
+    inhib2local_connect(num, net.inhib.ensemble, net.oscC.ensemble[0], tau)
+    inhib2local_connect(num, net.inhib.ensemble, net.oscD.ensemble[0], tau)
 
+    local2inhib_connect(net.oscA.ensemble[0], net.inhib.input,tau)
+    local2inhib_connect(net.oscB.ensemble[0], net.inhib.input,tau)#
+    local2inhib_connect(net.oscC.ensemble[0], net.inhib.input, tau)
+    local2inhib_connect(net.oscD.ensemble[0], net.inhib.input, tau)
+
+    #local
+    local2local_connect(net.oscA.ensemble[0], net.oscB.ensemble[0], tau)
+    # local2local_connect(net.oscA.ensemble[0], net.oscC.ensemble[0], tau)
+    # local2local_connect(net.oscA.ensemble[0], net.oscD.ensemble[0], tau)
+
+    local2local_connect(net.oscB.ensemble[0], net.oscA.ensemble[0], tau)
+    local2local_connect(net.oscB.ensemble[0], net.oscC.ensemble[0], tau)
+    # local2local_connect(net.oscB.ensemble[0], net.oscD.ensemble[0], tau)
+
+    # local2local_connect(net.oscC.ensemble[0], net.oscA.ensemble[0], tau)
+    local2local_connect(net.oscC.ensemble[0], net.oscB.ensemble[0], tau)
+    local2local_connect(net.oscC.ensemble[0], net.oscD.ensemble[0], tau)
+
+    # local2local_connect(net.oscD.ensemble[0], net.oscA.ensemble[0], tau)
+    # local2local_connect(net.oscD.ensemble[0], net.oscB.ensemble[0], tau)
+    local2local_connect(net.oscD.ensemble[0], net.oscC.ensemble[0], tau)
+
+#feed
+    piecewise_f = piecewise({0: 1,
+                             .2: 1})
+    net.A = nengo.Node(1)
+    net.B = nengo.Node(0)
+    net.C = nengo.Node(0)
+    net.D = nengo.Node(1)
+    nengo.Connection(net.A, net.oscA.ensemble[0], synapse=tau)
+    nengo.Connection(net.B, net.oscB.ensemble[0], synapse=tau)
+    nengo.Connection(net.C, net.oscC.ensemble[0], synapse=tau)
+    nengo.Connection(net.D, net.oscD.ensemble[0], synapse=tau)
+#probes
+    inhib_pr = nengo.Probe(net.inhib.ensemble, synapse=0.01)
     oscillatorA_pr = nengo.Probe(net.oscA.ensemble[0], synapse=0.01)
     oscillatorB_pr = nengo.Probe(net.oscB.ensemble[0], synapse=0.01)
-    inhib_pr = nengo.Probe(net.inhib.ensemble, synapse=0.01)
+    oscillatorC_pr = nengo.Probe(net.oscC.ensemble[0], synapse=0.01)
+    oscillatorD_pr = nengo.Probe(net.oscD.ensemble[0], synapse=0.01)
 
 
-with nengo.Simulator(net,seed=123) as sim:
-    sim.run(80)
-    # <editor-fold desc="...plot osc inhib">
+with nengo.Simulator(net) as sim:
+    sim.run(100)
     t = sim.trange()
     plt.figure()
+    plt.subplot(5,1,1)
     plt.plot(t, sim.data[inhib_pr], label="inhibitor", color='k')
+
+    plt.subplot(5,1,2)
     plt.plot(t, sim.data[oscillatorA_pr], label="oscillatorA", color='b')
+
+    plt.subplot(5,1,3)
     plt.plot(t, sim.data[oscillatorB_pr], label="oscillatorB", color='b')
-    plt.plot(t, sim.data[inhib_pr], label="inhib", color='r')
-    plt.title("osc and inhib interaction")
-    plt.xlabel("Time (s)")
-    plt.ylabel("x&z activities")
-    plt.legend()
+
+    plt.subplot(5,1,4)
+    plt.plot(t, sim.data[oscillatorC_pr], label="oscillatorC", color='b')
+
+    plt.subplot(5,1,5)
+    plt.plot(t, sim.data[oscillatorD_pr], label="oscillatorD", color='b')
+
+    # plt.title("osc and inhib interaction")
+    # plt.xlabel("Time (s)")
+    # plt.ylabel("x&z activities")
+    # plt.legend()
     plt.show()
-    # </editor-fold>
