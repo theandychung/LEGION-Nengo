@@ -48,7 +48,7 @@ with net:
     y_pr = nengo.Probe(oscillator_y, synapse=syn_probe)
 
 with nengo.Simulator(net) as sim:
-    sim.run(30)
+    sim.run(35)
 
 t = sim.trange()
 # xy activities

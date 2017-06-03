@@ -9,7 +9,8 @@ I =.5
 epsilon=.2
 gamma=6.0
 beta=0.1
-syn = 9
+syn = .05
+tau = 4
 # </editor-fold>
 net = nengo.Network(label='Relaxation Oscillator')
 with net:
@@ -24,10 +25,10 @@ with net:
         x,y,x_avg= x
         dx =  3 * x - x**3 + 2 - y
         dy = epsilon * (gamma * (1 + np.tanh(x / beta)) - y)
-        return [syn*dx+x,syn*dy+y, syn*x+x_avg]
+        return [tau*dx+x,syn*dy+y, tau*x+x_avg]
     nengo.Connection(oscillator, oscillator, function=feedback, synapse=syn)
     # inp to osc connection
-    nengo.Connection(inp,oscillator[0], transform = syn, synapse=syn)
+    nengo.Connection(inp,oscillator[0], transform = tau, synapse=syn)
     x_pr = nengo.Probe(oscillator[0], synapse=0.01)
     y_pr = nengo.Probe(oscillator[1], synapse=0.01)
 with nengo.Simulator(net) as sim:

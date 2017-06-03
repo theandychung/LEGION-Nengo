@@ -3,29 +3,30 @@ import nengo
 from nengo.utils.functions import piecewise
 
 model = nengo.Network(label='Integrator')
+model = nengo.Network(label='Integrator')
 with model:
     # Our ensemble consists of 100 leaky integrate-and-fire neurons,
     # representing a one-dimensional signal
-    A = nengo.Ensemble(100, dimensions=1, neuron_type=nengo.Direct())
+    A = nengo.Ensemble(100, dimensions=1)
+
+    # Create a piecewise step function for input
+    from nengo.utils.functions import piecewise
 
     input = nengo.Node(
         piecewise({
-            0: -2,
-            .2:2,
-            1: -2,
-            1.2:2,
+            0: 0,
+            0.2: 1,
+            1: 0,
             2: -2,
-            2.2:2,
-            3: -2,
-            3.2:2,
-            4: -2,
-            4.2:2,
-            5: -2
+            3: 0,
+            4: 1,
+            5: 0
         }))
+
     # Connect the population to itself
     tau = 0.1
     nengo.Connection(
-        A, A, transform=.8,
+        A, A, transform=[[1]],
         synapse=tau)  # Using a long time constant for stability
 
     # Connect the input
@@ -37,10 +38,12 @@ with model:
     input_probe = nengo.Probe(input)
     A_probe = nengo.Probe(A, synapse=0.01)
 
-    with nengo.Simulator(model) as sim:
-        # Run it for 6 seconds
-        sim.run(6)
+# Create our simulator
+with nengo.Simulator(model) as sim:
+    # Run it for 6 seconds
+    sim.run(6)
 
+    # Plot the decoded output of the ensemble
     plt.figure()
     plt.plot(sim.trange(), sim.data[input_probe], label="Input")
     plt.plot(sim.trange(), sim.data[A_probe], 'k', label="Integrator output")
