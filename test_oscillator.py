@@ -1,55 +1,102 @@
 import nengo
 import numpy as np
 import matplotlib.pyplot as plt
+from Constants import *
 
-I =.5
-epsilon=.2
-gamma=6.0
-beta=0.1
-syn=0.1
+# <editor-fold desc="...constants">
+# I =.5
+# epsilon=.2
+# gamma=6.0
+# beta=0.1
+# dt = 0.001
+# </editor-fold>
 
-n_neurons = 500
-neuron_type = nengo.LIFRate()
-syn_probe = 0.01
+class Movingavg(object):
+    def __init__(self, dimensions, timesteps=50):
+        self.history = np.zeros((timesteps, dimensions))
 
-net = nengo.Network(label='Relaxation Oscillator')
-with net:
-    inp = nengo.Node(I)
+    def step(self, t, x):
+        self.history = np.roll(self.history, -1)
+        self.history[-1] = x
+        if np.mean(self.history)>theta:
+            temp = 1
+        else:
+            temp = 0
+        return temp
+    
+class Oscillator(nengo.Network):
+    def __init__(self, num_neurons= 1, tau=4, syn = 0.2,
+                 x_t=0 ,x_f = 0,
+                 label=None):
+        super().__init__()
+        self.n_neuron = num_neurons
+        self.radius = 8
+        self.x_t = x_t
+        self.x_f = x_f
+        self.syn = syn
+        self.jcount = 0
+        with self:
+            # self.config[nengo.Ensemble].neuron_type = nengo.Direct()
+            # self.input = nengo.Node(size_in= 1)
+            self.ensemble = nengo.Ensemble(
+                n_neurons= self.n_neuron, dimensions= 2, radius= self.radius , label=label)
 
-    oscillator_x = nengo.Ensemble(
-        n_neurons=n_neurons, dimensions=1, neuron_type=neuron_type,
-        radius=2, intercepts=np.zeros(n_neurons))
+            # osc to osc connection
+            def feedback(x):
+                x, y = x
+                dx = 3 * x - x ** 3 + 2 - y #+ np.random.normal(0,1,None)
+                dy = epsilon * (gamma * (1 + np.tanh(x / beta)) - y)
+                return [tau * dx + x, tau * dy + y]#, tau*x+.01*x_avg
 
-    oscillator_y = nengo.Ensemble(
-        n_neurons=n_neurons, dimensions=1, neuron_type=neuron_type,
-        radius=7)
+            nengo.Connection(self.ensemble, self.ensemble, function= feedback, synapse= self.syn)
 
-    '''
-    # osc to osc connection
-    def feedback(x):
-        x,y = x
-        dx =  3 * x - x**3 + 2 - y
-        dy = epsilon * (gamma * (1 + np.tanh(x / beta)) - y)
-        return [syn*dx+x,syn*dy+y]
-    '''
+            #moving average
+            deltat = t_th #window size for moving average
+            movingavg = Movingavg(1, timesteps=int(deltat / dt))
+            self.h = nengo.Node(movingavg.step, size_in=1, size_out=1)
+            nengo.Connection(self.ensemble[0], self.h)
 
-    nengo.Connection(oscillator_x, oscillator_x, synapse=syn,
-                     function=lambda x: syn*(3*x - x**3 + 2) + x)
-    nengo.Connection(oscillator_x, oscillator_y, synapse=syn,
-                     function=lambda x: syn*(epsilon * (gamma * (1 + np.tanh(x / beta)))))
-    nengo.Connection(oscillator_y, oscillator_x, synapse=syn,
-                     function=lambda y: syn*(-y))
-    nengo.Connection(oscillator_y, oscillator_y, synapse=syn,
-                     function=lambda y: syn*(epsilon * (-y)) + y)
+            #NJ ensemble
+            self.NJensemble = nengo.Ensemble(
+                n_neurons=self.n_neuron, dimensions=8, radius=self.radius)
 
-    # inp to osc connection
-    nengo.Connection(inp, oscillator_x, transform=syn, synapse=syn)
-    x_pr = nengo.Probe(oscillator_x, synapse=syn_probe)
-    y_pr = nengo.Probe(oscillator_y, synapse=syn_probe)
+            def nj_osc(z):
+                Ji1, Ji2, Ji3, Ji4, x1, x2, x3, x4 = z
+                sum = c + Ji1 + Ji2 + Ji3 + Ji4
+                return [W_T * Ji1 / sum * s_f(x1, theta_x) + W_T * Ji2 / sum * s_f(x2, theta_x) +
+                        W_T * Ji3 / sum * s_f(x3, theta_x) + W_T * Ji4 / sum * s_f(x4, theta_x)]
 
-with nengo.Simulator(net) as sim:
-    sim.run(35)
+            nengo.Connection(self.NJensemble, self.ensemble[0], function=nj_osc, synapse=self.syn)
+    def addconnection(self, Jij, x):
+        if self.count<4:
+            nengo.Connection(Jij, self.NJensemble[self.count], synapse= self.syn)
+            nengo.Connection(x, self.NJensemble[self.count+4], synapse= self.syn)
+            self.count= self.count+1
+        else:
+            print(self.count)
+            print("error")
+            
+def s_f(x, theta):
+    s = 1 / (1 + np.exp(-kappa * (x - theta)))
+    return s
 
+model = nengo.Network(label='Relaxation Oscillator')
+with model:
+    model.config[nengo.Ensemble].neuron_type = nengo.Direct()# force direct
+    # net.syn = .05
+    # net.tau = .5
+    model.syn = 1
+    model.tau = 1
+    model.inp = nengo.Node(I)
+    model.osc = Oscillator(500, model.tau, model.syn)
+    nengo.Connection(model.inp, model.osc.ensemble[0], synapse= model.syn)
+
+    x_pr = nengo.Probe(model.osc.ensemble[0], synapse=0.01)
+    y_pr = nengo.Probe(model.osc.ensemble[1], synapse=0.01)
+
+with nengo.Simulator(model) as sim:
+    sim.run(40)
+# <editor-fold desc="...plot">
 t = sim.trange()
 # xy activities
 fig1 = plt.figure(figsize=(10, 5))
@@ -76,3 +123,4 @@ ax2.set_ylim(ymin, ymax)
 ax2.set_xlim(xmin, xmax)
 ax2.legend()
 plt.show()
+# </editor-fold>
