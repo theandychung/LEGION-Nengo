@@ -77,7 +77,7 @@ def mapper(filename, threshold= None):
 
 
 filename = 'bee2'
-threshold = .045
+threshold = None
 
 # call_ipem(filename)
 autocorr_file(filename)

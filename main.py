@@ -20,7 +20,6 @@ except:
         inp = np.asarray(inp)
         grid_r, grid_c = inp.shape
         print('inp dimension= ', inp.shape)
-
 else:
     grid_r, grid_c = inp.shape
     filename = 'test'
@@ -68,37 +67,50 @@ with model:
 with nengo.Simulator(model) as sim:
     sim.run(runtime)
     t = sim.trange()
-    inhib_data = sim.data[inhibitor_probe]
-    # sim.data[oscillator_probes[i][j]]
-
-    haederstr = ('t,inhib_data')
-    filedir = 'csv_input/'+filename+'.csv'
-    # osc_data=[]
-    # for i in range(grid_r):
-    #     for j in range(grid_c):
-    #         osc_data.append(sim.data[oscillator_probes[i][j]])
-
-    # df = pd.DataFrame(osc_data)
-    # df.to_csv(filedir, index=False, header=False)
-    np.savetxt(filedir,zip(t, sim.data[inhibitor_probe]),header=haederstr, comments="" , delimiter=',')
-    # with open(filedir, 'a') as csvfile:
-    #     writer = csv.writer(csvfile)
-
-    #     writer.writerow(inhib_data)
-
-    plt.figure()
-    plt.subplot(grid_r+1,1,1)
-    plt.plot(t,inhib_data , label= "inhibitor", color= 'k')
-    plt.title('LEGION')
-    plt.legend(prop={'size': 10})
+    # t=t.reshape((t.shape[0],1))
+    # print t.shape
+    data = []
+    headerstr=[]
+    data.append(t)
+    headerstr.append('t')
+    data.append(sim.data[inhibitor_probe][:,0])
+    headerstr.append('inhibitor')
+    # data = np.concatenate((t, sim.data[inhibitor_probe]), axis=1)
+    # osc_data = [[0 for x in range(grid_c)] for x in range(grid_r)]
     for i in range(grid_r):
-        plt.subplot(grid_r + 1, 1, i + 2)
         for j in range(grid_c):
-            plt.plot(t, sim.data[oscillator_probes[i][j]],
-                     label="oscillator %d" % (j+1))
-    plt.legend(prop={'size': 10})
-    plt.suptitle(str(datetime.datetime.now()))
-    plt.ylabel('Activities')
-    plt.xlabel('Time (sec)')
+            data.append(sim.data[oscillator_probes[i][j]][:,0])
+            headerstr.append("oscillator %d%d" % (i,j))
+            # data = np.concatenate((data, sim.data[oscillator_probes[i][j]]), axis=1)
+            # headerstr.append("oscillator %d%d" % (i, j))
 
-    plt.show()
+
+    filedir = 'csv_input/'+filename+'.csv'
+    my_df = pd.DataFrame(np.asarray(data).T)
+    my_df.to_csv(filedir, index=False, header=headerstr)
+
+
+
+# def plotter(filename):
+
+
+
+    # plt.figure()
+    # plt.subplot(grid_r+1,1,1)
+    # plt.plot(time_data,osc_data)
+    # plt.title('LEGION')
+    # plt.legend(prop={'size': 10})
+
+
+
+    # for i in range(grid_r-1,-1,-1):
+    #     for j in range(grid_c-1,-1,-1):
+    #         plt.plot(t, sim.data[oscillator_probes[i][j]]+i*5,
+    #                  label="oscillator %d%d" % (i,j))
+    # plt.plot(t, sim.data[inhibitor_probe]+grid_r*5, label="inhibitor", color='k')
+    # plt.legend(prop={'size': 10})
+    # # plt.suptitle(str(datetime.datetime.now()))
+    # plt.ylabel('Activities')
+    # plt.xlabel('Time (sec)')
+
+    # plt.show()

@@ -13,11 +13,11 @@ I = 0
 # inp = np.array([[1,1,0,0],
 #                 [0,0,0,0],
 #                 [0,0,0,1]])
-#
-# inp = np.array([[1,1,0,0],
-#                 [0,0,0,0],
-#                 [0,0,0,0],
-#                 [0,0,0,1]])
+
+inp = np.array([[1,1,0,0],
+                [0,0,0,0],
+                [0,0,0,0],
+                [0,0,0,1]])
 
 #if no inp is defined,
 #read input from "filename".txt file
