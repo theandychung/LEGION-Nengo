@@ -1,4 +1,4 @@
-from Constants import *
+from const import *
 
 
 def s_f(x, theta):
@@ -15,3 +15,4 @@ def convertinp(i):
     else:
         i = -0.02
     return i
+

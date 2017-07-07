@@ -1,5 +1,5 @@
 import numpy as np
-import Constants
+import const
 
 
 def VectorField(ax, f, xran=[-5, 5], yran=[-5, 5], grid=[21, 21], color='k'):

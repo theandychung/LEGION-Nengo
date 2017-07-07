@@ -3,8 +3,8 @@ import nengo
 
 
 class Jij_connector(object):
-    def __init__(self,xi, xj, tau=default_tau, syn=default_syn):
-        super().__init__()
+    def __init__(self,xi, xj, tau=default_tau, syn=default_syn, **kwargs):
+        super(Jij_connector,self).__init__(**kwargs)
         self.label = "R" + str(xi.x_f) + "C" + str(xi.x_t) + "-R" + str(xj.x_f) + "C" + str(xj.x_t)
         self.n_neuron = 1
         self.radius = 8
