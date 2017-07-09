@@ -1,15 +1,26 @@
 import matplotlib.pyplot as plt
-import csv
 import nengo
-import datetime
+from datetime import datetime
 from func import *
 from osc import Oscillator
 from inhib import Inhibitor
 import pandas as pd
-# plt.close('all')
+from plotter import plotter
+import os
+import yagmail
+from mem import memory
 
-# if inp is not in const.py,
-# read from the inp created by createinp.py
+# "always" show or "ignore" warnings
+import warnings
+np.seterr(all='warn')
+warnings.simplefilter("always")
+
+# adjust value in "const.py"
+# if inp is not in "const.py",
+# read from the inp created by "createinp.py"
+# NOTE: this code is running under python 2.7 because
+# we want the code to be compatible with the
+# brian package in "createinp.py"
 try:
     inp
 except:
@@ -19,7 +30,7 @@ except:
         inp = [[int(digit) for digit in line.split()] for line in file]
         inp = np.asarray(inp)
         grid_r, grid_c = inp.shape
-        print('inp dimension= ', inp.shape)
+        print('main: inp dimension= ', inp.shape)
 else:
     grid_r, grid_c = inp.shape
     filename = 'test'
@@ -64,6 +75,8 @@ with model:
             oscillator_probes[i][j] = nengo.Probe(ea_oscillator[i][j].ensemble[0], synapse=0.01)
 
 
+
+
 with nengo.Simulator(model) as sim:
     sim.run(runtime)
     t = sim.trange()
@@ -75,42 +88,59 @@ with nengo.Simulator(model) as sim:
     headerstr.append('t')
     data.append(sim.data[inhibitor_probe][:,0])
     headerstr.append('inhibitor')
-    # data = np.concatenate((t, sim.data[inhibitor_probe]), axis=1)
-    # osc_data = [[0 for x in range(grid_c)] for x in range(grid_r)]
     for i in range(grid_r):
         for j in range(grid_c):
             data.append(sim.data[oscillator_probes[i][j]][:,0])
-            headerstr.append("oscillator %d%d" % (i,j))
+            headerstr.append("oscillator %d %d" % (i,j))
             # data = np.concatenate((data, sim.data[oscillator_probes[i][j]]), axis=1)
             # headerstr.append("oscillator %d%d" % (i, j))
-
-
-    filedir = 'csv_input/'+filename+'.csv'
-    my_df = pd.DataFrame(np.asarray(data).T)
-    my_df.to_csv(filedir, index=False, header=headerstr)
+    filedir = 'csv/'+filename+'.csv'
 
 
 
-# def plotter(filename):
 
 
+    # https://stackoverflow.com/questions/938733/total-memory-used-by-python-process
 
-    # plt.figure()
-    # plt.subplot(grid_r+1,1,1)
-    # plt.plot(time_data,osc_data)
-    # plt.title('LEGION')
-    # plt.legend(prop={'size': 10})
+    pd.DataFrame(np.asarray(data).T).to_csv(filedir, index=False, header=headerstr)
 
 
+#clear memory
+    # del Oscillator
+    # del Inhibitor
+    # del oscillator_probes
+    # del inhibitor_probe
 
-    # for i in range(grid_r-1,-1,-1):
-    #     for j in range(grid_c-1,-1,-1):
-    #         plt.plot(t, sim.data[oscillator_probes[i][j]]+i*5,
-    #                  label="oscillator %d%d" % (i,j))
-    # plt.plot(t, sim.data[inhibitor_probe]+grid_r*5, label="inhibitor", color='k')
-    # plt.legend(prop={'size': 10})
-    # # plt.suptitle(str(datetime.datetime.now()))
-    # plt.ylabel('Activities')
-    # plt.xlabel('Time (sec)')
+# plot and save png
+plotter()
+# if os.name == 'nt':
+#     plt.show()
 
-    # plt.show()
+# send out picture if using linux
+# https://github.com/kootenpv/yagmail/issues/72
+if os.name == 'posix':
+    subject = 'LEGION '+str(datetime.now())
+    body = 'W0= ' + str(W0) + ', W1= ' + str(W1)
+    img = 'png/' + filename + '.png'
+    yagmail.SMTP('justforthiscode','cnrgntu510').send(
+        'theandychung@gmail.com', subject=subject, contents= [body,img])
+
+if df['W0'].shape[0] !=1:
+    df.drop(df.index[0], inplace=True)
+    df.to_csv('csv/values.csv')
+    print df
+    execfile('main.py')
+# import sys
+# # for var in locals().items():
+# #     del var
+#
+# a=0
+# for var, obj in locals().items():
+#     print var, sys.getsizeof(obj)
+#     a=a+sys.getsizeof(obj)
+# print a
+
+# make sound after finished
+# from music import playmusic
+# playmusic()
+

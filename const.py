@@ -1,4 +1,5 @@
 import numpy as np
+import pandas as pd
 from nengo.utils.functions import piecewise
 
 #total simulation time
@@ -14,10 +15,10 @@ I = 0
 #                 [0,0,0,0],
 #                 [0,0,0,1]])
 
-inp = np.array([[1,1,0,0],
+inp = np.array([[1,0,0,1],
+                [0,0,0,1],
                 [0,0,0,0],
-                [0,0,0,0],
-                [0,0,0,1]])
+                [0,0,0,0]])
 
 #if no inp is defined,
 #read input from "filename".txt file
@@ -28,9 +29,18 @@ filename = 'bee2'
 #parameter values
 ##handly ones
 ###weight for local connection
-W0 = 3
+df=pd.read_csv('csv/values.csv')
+if 'W0' in df:
+    W0 = df['W0'].iloc[0]
+else:
+    print('const: W0 not found')
+    exit()
+
+# execfile( "someFile.py")
+# print W
+W0 = 20
 ###weight of inhibition
-W1 = 4#6.5
+W1 = 28 #<20
 
 ##better not touch this
 epsilon=.2 #osc
