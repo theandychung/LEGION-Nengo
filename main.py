@@ -1,3 +1,4 @@
+# <editor-fold desc="import...">
 import matplotlib.pyplot as plt
 import nengo
 from datetime import datetime
@@ -14,13 +15,17 @@ from mem import memory
 import warnings
 np.seterr(all='warn')
 warnings.simplefilter("always")
+# </editor-fold>
 
+# <editor-fold desc="...notes to the user">
 # adjust value in "const.py"
 # if inp is not in "const.py",
 # read from the inp created by "createinp.py"
 # NOTE: this code is running under python 2.7 because
 # we want the code to be compatible with the
 # brian package in "createinp.py"
+# </editor-fold>
+
 try:
     inp
 except:
@@ -95,27 +100,16 @@ with nengo.Simulator(model) as sim:
             # data = np.concatenate((data, sim.data[oscillator_probes[i][j]]), axis=1)
             # headerstr.append("oscillator %d%d" % (i, j))
     filedir = 'csv/'+filename+'.csv'
-
-
-
-
-
-    # https://stackoverflow.com/questions/938733/total-memory-used-by-python-process
-
     pd.DataFrame(np.asarray(data).T).to_csv(filedir, index=False, header=headerstr)
 
 
-#clear memory
-    # del Oscillator
-    # del Inhibitor
-    # del oscillator_probes
-    # del inhibitor_probe
 
 # plot and save png
 plotter()
 # if os.name == 'nt':
 #     plt.show()
 
+# <editor-fold desc="...send email to me">
 # send out picture if using linux
 # https://github.com/kootenpv/yagmail/issues/72
 if os.name == 'posix':
@@ -124,12 +118,16 @@ if os.name == 'posix':
     img = 'png/' + filename + '.png'
     yagmail.SMTP('justforthiscode','cnrgntu510').send(
         'theandychung@gmail.com', subject=subject, contents= [body,img])
+# </editor-fold>
 
-if df['W0'].shape[0] !=1:
-    df.drop(df.index[0], inplace=True)
-    df.to_csv('csv/values.csv')
-    print df
-    execfile('main.py')
+# <editor-fold desc="...trying to deal with memory problem here (failed)">
+#clear memory
+    # del Oscillator
+    # del Inhibitor
+    # del oscillator_probes
+    # del inhibitor_probe
+
+# check local variables
 # import sys
 # # for var in locals().items():
 # #     del var
@@ -139,8 +137,19 @@ if df['W0'].shape[0] !=1:
 #     print var, sys.getsizeof(obj)
 #     a=a+sys.getsizeof(obj)
 # print a
+# </editor-fold>
 
-# make sound after finished
+# <editor-fold desc="...trying to rerun code (failed)">
+# print('main: memory ', memory())
+# if df['W0'].shape[0] !=1:
+#     df.drop(df.index[0], inplace=True)
+#     df.to_csv('ctrl_vars/values.csv')
+#     print df
+#     execfile('main.py')
+# </editor-fold>
+
+# <editor-fold desc="...paly music after finished">
 # from music import playmusic
 # playmusic()
+# </editor-fold>
 

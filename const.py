@@ -15,10 +15,10 @@ I = 0
 #                 [0,0,0,0],
 #                 [0,0,0,1]])
 
-inp = np.array([[1,0,0,1],
-                [0,0,0,1],
-                [0,0,0,0],
-                [0,0,0,0]])
+# inp = np.array([[1,0,0,1],
+#                 [0,0,0,1],
+#                 [0,0,0,0],
+#                 [0,0,0,0]])
 
 #if no inp is defined,
 #read input from "filename".txt file
@@ -29,16 +29,18 @@ filename = 'bee2'
 #parameter values
 ##handly ones
 ###weight for local connection
-df=pd.read_csv('csv/values.csv')
-if 'W0' in df:
-    W0 = df['W0'].iloc[0]
-else:
-    print('const: W0 not found')
-    exit()
+# <editor-fold desc="...trying to rerun code (failed)">
+# df=pd.read_csv('ctrl_vars/values.csv')
+# if 'W0' in df:
+#     W0 = df['W0'].iloc[0]
+# else:
+#     print('const: W0 not found')
+#     exit()
+# </editor-fold>
 
 # execfile( "someFile.py")
 # print W
-W0 = 20
+W0 = 25
 ###weight of inhibition
 W1 = 28 #<20
 

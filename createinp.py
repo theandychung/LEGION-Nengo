@@ -35,18 +35,20 @@ def call_ipem(filename):
     myIPEM.plot()
 
 def autocorr_file(filename):
-    datalength = 50 #take N point data from beginning
     dataPath = 'Cython_IPEM/txt/' + filename + '.txt'
     with open(dataPath, 'r') as file:
         inp = [[float(digit) for digit in line.split()] for line in file]
         inp = np.asarray(inp)
-        [r,c]= inp.shape
-        if r != 40:
-            inp = np.transpose(inp)
-            print('autocorr_file transform inp to',inp.shape)
-        inp = inp[:,0:datalength]
+        inp = np.transpose(inp)
+        # [r,c]= inp.shape
+        # print('createinp/autocorr_file: transform inp to',inp.shape)
+
+        # take N point data from music matrix
+        datalength = 20
+        inp = inp[:,50-datalength/2:50+datalength/2]
+
         inp = np.apply_along_axis(autocorr, axis=1, arr=inp)
-        inp = inp
+        # inp = inp
         # [R,C]=inp.shape
     np.savetxt('Cython_IPEM/txt/'+filename+'_autocorr.txt', inp, fmt='%.10f')#, comments="" , delimiter=','
     plotdismatrix(inp, filename)
@@ -58,9 +60,6 @@ def mapper(filename, threshold= None):
         inp = [[float(digit) for digit in line.split()] for line in file]
         inp = np.asarray(inp)
         [r, c] = inp.shape
-        if r != 40:
-            temp_inp = np.transpose(inp)
-            print('mapper transform inp to',inp.shape)
         inp = inp#[:,0:40]
     plt.imsave(pngDataPath + '_grey.png', inp, cmap=cm.gray)
     if threshold == None:
