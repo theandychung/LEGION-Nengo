@@ -1,8 +1,15 @@
 # <editor-fold desc="import...">
+from time import sleep
+from datetime import datetime,timedelta
+from func import *
+estimated_t= datetime.now()+timedelta(minutes = sleep_t)
+print('main: W0= %d, W1= %d' % (W0,W1))
+print('main: wait for %d min' % sleep_t)
+print('main: estimated starting time: {:%I:%M:%S %p}'.format(estimated_t))
+sleep(sleep_t*60) # Time in seconds.
+
 import matplotlib.pyplot as plt
 import nengo
-from datetime import datetime
-from func import *
 from osc import Oscillator
 from inhib import Inhibitor
 import pandas as pd
@@ -10,7 +17,6 @@ from plotter import plotter
 import os
 import yagmail
 from mem import memory
-
 # "always" show or "ignore" warnings
 import warnings
 np.seterr(all='warn')
@@ -79,9 +85,6 @@ with model:
         for j in range(grid_c):
             oscillator_probes[i][j] = nengo.Probe(ea_oscillator[i][j].ensemble[0], synapse=0.01)
 
-
-
-
 with nengo.Simulator(model) as sim:
     sim.run(runtime)
     t = sim.trange()
@@ -102,14 +105,17 @@ with nengo.Simulator(model) as sim:
     filedir = 'csv/'+filename+'.csv'
     pd.DataFrame(np.asarray(data).T).to_csv(filedir, index=False, header=headerstr)
 
+# plot and save
+if grid_c > 8 or grid_r > 8:
+    plotter(colar='k',marks=True)
+else:
+    plotter(marks=True)
 
+# show plot
+if os.name == 'nt':
+    plt.show()
 
-# plot and save png
-plotter()
-# if os.name == 'nt':
-#     plt.show()
-
-# <editor-fold desc="...send email to me">
+# <editor-fold desc="...send email to me if linux">
 # send out picture if using linux
 # https://github.com/kootenpv/yagmail/issues/72
 if os.name == 'posix':

@@ -3,9 +3,9 @@ import pandas as pd
 from nengo.utils.functions import piecewise
 
 #total simulation time
-runtime = .1
+runtime = .5
 
-#input
+#input for osc
 ##for testing oscillator
 I = 0
 ##for LEGION
@@ -13,12 +13,12 @@ I = 0
 
 # inp = np.array([[1,1,0,0],
 #                 [0,0,0,0],
+#                 [0,0,0,0],
 #                 [0,0,0,1]])
 
 # inp = np.array([[1,0,0,1],
-#                 [0,0,0,1],
-#                 [0,0,0,0],
-#                 [0,0,0,0]])
+#                 [1,0,0,0],
+#                 [1,0,0,0]])
 
 #if no inp is defined,
 #read input from "filename".txt file
@@ -40,9 +40,12 @@ filename = 'bee2'
 
 # execfile( "someFile.py")
 # print W
-W0 = 25
+W0 = 3
 ###weight of inhibition
-W1 = 28 #<20
+W1 = 4 #<20
+
+#delay task for slee_t min
+sleep_t=0
 
 ##better not touch this
 epsilon=.2 #osc
