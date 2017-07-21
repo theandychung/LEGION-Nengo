@@ -1,0 +1,11 @@
+.idea/
+*.pyc
+*.cfg
+
+FilterFrequencies.txt
+decim.dat
+eef.dat
+filters.dat
+lpf.dat
+omef.dat
+outfile.dat
