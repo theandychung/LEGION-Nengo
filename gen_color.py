@@ -1,6 +1,13 @@
 import random
+"""
+this code is from https://gist.github.com/adewes/5884820
 
-# https://gist.github.com/adewes/5884820
+generate colors for different oscillators' outputs.
+
+"""
+
+
+
 def get_random_color(pastel_factor=0.5):
     return [(x + pastel_factor) / (1.0 + pastel_factor) for x in [random.uniform(0, 1.0) for i in [1, 2, 3]]]
 

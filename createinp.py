@@ -1,3 +1,9 @@
+"""
+this code is running under python 2.7 because
+we want the code to be compatible with the
+brian package in "createinp.py"
+"""
+
 import numpy as np
 from Cython_IPEM.IPEM import IPEM
 import matplotlib.pyplot as plt

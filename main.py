@@ -1,4 +1,5 @@
 # <editor-fold desc="import...">
+""" delay the execution so I can go to sleep"""
 from time import sleep
 from datetime import datetime,timedelta
 from func import *
@@ -8,6 +9,7 @@ print('main: wait for %d min' % sleep_t)
 print('main: estimated starting time: {:%I:%M:%S %p}'.format(estimated_t))
 sleep(sleep_t*60) # Time in seconds.
 
+"""real main starts from here"""
 import matplotlib.pyplot as plt
 import nengo
 from osc import Oscillator
@@ -23,14 +25,11 @@ np.seterr(all='warn')
 warnings.simplefilter("always")
 # </editor-fold>
 
-# <editor-fold desc="...notes to the user">
-# adjust value in "const.py"
-# if inp is not in "const.py",
-# read from the inp created by "createinp.py"
-# NOTE: this code is running under python 2.7 because
-# we want the code to be compatible with the
-# brian package in "createinp.py"
-# </editor-fold>
+"""...to the user
+adjust value in "const.py"
+
+if inp is not in "const.py", read the input created by "createinp.py"
+"""
 
 try:
     inp
