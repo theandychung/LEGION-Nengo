@@ -1,3 +1,0 @@
-LIBRARY mycodecpy.pyd
-EXPORTS
-initmycodecpy
