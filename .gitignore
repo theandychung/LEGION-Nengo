@@ -9,3 +9,7 @@ filters.dat
 lpf.dat
 omef.dat
 outfile.dat
+
+
+# ...even if they are in subdirectories
+!*/
