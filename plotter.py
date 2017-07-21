@@ -7,15 +7,21 @@ from mem import memory
 
 
 def plotter(colar=None, marks=True, **kwargs):
-    # colar: oscillator colors.
-    #   None: generate random colors
-    # marks: draw only the tips
+    """
+    plot the LEGION segregation result
 
+    :param colar: oscillator colors.
+    None: generate random colors
+    :param marks:
+    True: draw only the tips
+    :param kwargs:
+    :return:
+    """
     # clear all var in memory
     # import sys
     # sys.modules[__name__].__dict__.clear()
 
-    # plot
+    """plot"""
     try:
         from const import inp
     except ImportError:
