@@ -6,9 +6,10 @@ from scipy import signal
 # d1 = pd.DataFrame({'C':[1,2,3,1,2]})
 # print a
 
-# def autocorr(x):
-    # result = np.correlate(x, x, mode='full')
-    # return result[result.size / 2:]
+def autocorr(x):
+    N=5
+    
+    return result[result.size / 2:]
 from numpy.lib.stride_tricks import as_strided
 
 

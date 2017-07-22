@@ -1,5 +1,5 @@
 """
-this code is running under python 2.7 because
+this code should run under python 2.7 because
 we want the code to be compatible with the
 brian package in "createinp.py"
 """
