@@ -3,17 +3,17 @@ import pandas as pd
 from nengo.utils.functions import piecewise
 
 """total simulation time"""
-runtime = .5
+runtime = 20
 
 """input for osc"""
 """===for testing oscillator==="""
-I = 0
+I = -1
 """==for LEGION==
 inp here is for testing,
 if inp is not found in this file, main.py will load inp from
 Cython_IPEM/txt/ filename _bitmap.txt
 """
-# inp = np.array([[1,1,0,0]])
+inp = np.array([[1,0,0,1]])
 
 # inp = np.array([[1,1,0,0],
 #                 [0,0,0,0],
@@ -46,7 +46,7 @@ filename = 'bee2'
 # print W
 W0 = 3
 """[weight of inhibition]"""
-W1 = 4 #<20
+W1 = 15 #<20
 
 """[delay task for slee_t min]"""
 sleep_t=0

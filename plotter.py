@@ -6,7 +6,7 @@ from const import dt
 from mem import memory
 
 
-def plotter(colar=None, marks=True, **kwargs):
+def plotter(colar=None, marks=False, **kwargs):
     """
     plot the LEGION segregation result
 

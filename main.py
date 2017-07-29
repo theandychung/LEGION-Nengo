@@ -6,7 +6,7 @@ from func import *
 estimated_t= datetime.now()+timedelta(minutes = sleep_t)
 print('main: W0= %d, W1= %d' % (W0,W1))
 print('main: wait for %d min' % sleep_t)
-print('main: estimated starting time: {:%I:%M:%S %p}'.format(estimated_t))
+print('main: script starts at {:%I:%M:%S %p}'.format(estimated_t))
 sleep(sleep_t*60) # Time in seconds.
 
 """real main starts from here"""
@@ -108,7 +108,7 @@ with nengo.Simulator(model) as sim:
 if grid_c > 8 or grid_r > 8:
     plotter(colar='k',marks=True)
 else:
-    plotter(marks=True)
+    plotter()
 
 # show plot
 if os.name == 'nt':

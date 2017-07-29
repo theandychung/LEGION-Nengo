@@ -3,6 +3,7 @@
 *.pyc
 *.cfg
 
+# files
 FilterFrequencies.txt
 decim.dat
 eef.dat
@@ -10,9 +11,9 @@ filters.dat
 lpf.dat
 omef.dat
 outfile.dat
+csv/*.csv
+png/*.png
 
-
-# ...even if they are in subdirectories
+# even if they are in subdirectories
 !*/
-.idea/workspace.xml
-.idea/workspace.xml
+png/test.png
