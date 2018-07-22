@@ -3,8 +3,6 @@ import matplotlib.ticker as ticker
 import pandas as pd
 import numpy as np
 from const import dt
-from mem import memory
-
 
 def plotter(colar=None, marks=False, **kwargs):
     """
@@ -17,10 +15,6 @@ def plotter(colar=None, marks=False, **kwargs):
     :param kwargs:
     :return:
     """
-    # clear all var in memory
-    # import sys
-    # sys.modules[__name__].__dict__.clear()
-
     """plot"""
     try:
         from const import inp

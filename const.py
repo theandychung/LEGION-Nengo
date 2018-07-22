@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 from nengo.utils.functions import piecewise
 
-"""total simulation time"""
+"""estimated total simulation time"""
 runtime = 20
 
 """input for osc"""

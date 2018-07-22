@@ -12,13 +12,13 @@ sleep(sleep_t*60) # Time in seconds.
 """real main starts from here"""
 import matplotlib.pyplot as plt
 import nengo
-from osc import Oscillator
-from inhib import Inhibitor
+from Oscillator import Oscillator
+from Inhibitor import Inhibitor
 import pandas as pd
 from plotter import plotter
 import os
 import yagmail
-from mem import memory
+
 # "always" show or "ignore" warnings
 import warnings
 np.seterr(all='warn')
@@ -45,15 +45,11 @@ else:
     grid_r, grid_c = inp.shape
     filename = 'test'
 
-model = nengo.Network(label="hahaha")
+model = nengo.Network(label="LEGION in Nengo")
 with model:
     model.config[nengo.Ensemble].neuron_type = nengo.Direct()# force direct
-
-    # tau = 4
-    # syn = tau
     tau = 4
     syn = .2
-
     inh = Inhibitor(tau, syn)
 
     # create input nodes, oscillators, and
@@ -63,7 +59,7 @@ with model:
         for j in range(grid_c):
             ea_oscillator[i][j] = Oscillator(tau, syn, i, j)
             ea_oscillator[i][j].set_input(inp[i][j])
-            inh.inhiblocal_connect(ea_oscillator[i][j].ensemble[0])
+            inh.inhibitorToLocal(ea_oscillator[i][j].ensemble[0])
 
     #local connections
     for i in range(grid_r):
@@ -87,8 +83,6 @@ with model:
 with nengo.Simulator(model) as sim:
     sim.run(runtime)
     t = sim.trange()
-    # t=t.reshape((t.shape[0],1))
-    # print t.shape
     data = []
     headerstr=[]
     data.append(t)
@@ -99,8 +93,6 @@ with nengo.Simulator(model) as sim:
         for j in range(grid_c):
             data.append(sim.data[oscillator_probes[i][j]][:,0])
             headerstr.append("oscillator %d %d" % (i,j))
-            # data = np.concatenate((data, sim.data[oscillator_probes[i][j]]), axis=1)
-            # headerstr.append("oscillator %d%d" % (i, j))
     filedir = 'csv/'+filename+'.csv'
     pd.DataFrame(np.asarray(data).T).to_csv(filedir, index=False, header=headerstr)
 
@@ -110,11 +102,11 @@ if grid_c > 8 or grid_r > 8:
 else:
     plotter()
 
-# show plot
+# show plot if run in windows
 if os.name == 'nt':
     plt.show()
 
-# <editor-fold desc="...send email to me if linux">
+# <editor-fold desc="...send email to me if run in linux">
 # send out picture if using linux
 # https://github.com/kootenpv/yagmail/issues/72
 if os.name == 'posix':
@@ -123,34 +115,6 @@ if os.name == 'posix':
     img = 'png/' + filename + '.png'
     yagmail.SMTP('justforthiscode','cnrgntu510').send(
         'theandychung@gmail.com', subject=subject, contents= [body,img])
-# </editor-fold>
-
-# <editor-fold desc="...trying to deal with memory problem here (failed)">
-#clear memory
-    # del Oscillator
-    # del Inhibitor
-    # del oscillator_probes
-    # del inhibitor_probe
-
-# check local variables
-# import sys
-# # for var in locals().items():
-# #     del var
-#
-# a=0
-# for var, obj in locals().items():
-#     print var, sys.getsizeof(obj)
-#     a=a+sys.getsizeof(obj)
-# print a
-# </editor-fold>
-
-# <editor-fold desc="...trying to rerun code (failed)">
-# print('main: memory ', memory())
-# if df['W0'].shape[0] !=1:
-#     df.drop(df.index[0], inplace=True)
-#     df.to_csv('ctrl_vars/values.csv')
-#     print df
-#     execfile('main.py')
 # </editor-fold>
 
 # <editor-fold desc="...paly music after finished">

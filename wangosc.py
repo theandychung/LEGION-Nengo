@@ -5,6 +5,9 @@ import nengo
 
 
 class Wangoscillator(nengo.Network):
+    """Wang oscillator is exactly the same model proposed by Wang.
+    This can show that Wang's oscillator is not valid  in Nengo due to Nengo's biologically plausible features.
+    """
     def __init__(self, tau=default_tau, syn=default_syn,
                  x_f=0, x_t=0,**kwargs):
         super(Wangoscillator,self).__init__(**kwargs)
