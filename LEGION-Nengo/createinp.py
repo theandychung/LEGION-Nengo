@@ -5,7 +5,7 @@ brian package in "createinp.py"
 """
 
 import numpy as np
-from Cython_IPEM.IPEM import IPEM
+from Cython_IPEM.Cython_IPEM.IPEM import IPEM
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm
 import pandas as pd

@@ -1,8 +1,14 @@
+# byproduct of pycharm
 .idea/**
-*.pyc
-*.cfg
+
+# byproduct of setup.py
+build/*
+dist/*
+*.egg-info/*
 
 # files
+*.pyc
+*.cfg
 FilterFrequencies.txt
 *.dat
 csv/*.csv
