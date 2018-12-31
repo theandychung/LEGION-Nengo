@@ -4,12 +4,7 @@
 
 # files
 FilterFrequencies.txt
-decim.dat
-eef.dat
-filters.dat
-lpf.dat
-omef.dat
-outfile.dat
+*.dat
 csv/*.csv
 png/*.png
 
