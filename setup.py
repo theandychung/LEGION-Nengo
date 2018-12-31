@@ -2,7 +2,8 @@ try:
     import brian
 except:
     import warnings
-    warnings.warn('Cython_IPEM not found')
+    warnings.warn('Cython_IPEM not found, '
+                  'you will only be able to analyze data files.')
 
 from setuptools import setup, find_packages
 
