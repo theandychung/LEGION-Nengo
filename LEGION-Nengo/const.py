@@ -1,6 +1,7 @@
 import numpy as np
 Cython_IPEM_Folder = 'Cython_IPEM/Cython_IPEM/'
-
+"""estimated total simulation time"""
+runtime = 20
 
 """input for osc"""
 """===for testing oscillator==="""
@@ -10,7 +11,7 @@ inp here is for testing,
 if inp is not found in this file, main.py will load inp from
 Cython_IPEM/txt/ filename _bitmap.txt
 """
-inp = np.array([[1, 0, 0, 1]])
+inp = np.array([[1,0,0,1]])
 
 # inp = np.array([[1,1,0,0],
 #                 [0,0,0,0],
