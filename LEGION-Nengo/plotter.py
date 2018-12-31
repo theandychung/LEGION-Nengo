@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 import matplotlib.ticker as ticker
 import pandas as pd
 import numpy as np
-from const import dt
+from const import dt, Cython_IPEM_Folder
 
 def plotter(colar=None, marks=False, **kwargs):
     """
@@ -21,7 +21,7 @@ def plotter(colar=None, marks=False, **kwargs):
     except ImportError:
         from const import filename
         print('plotter: importing filename from const')
-        txtDataPath = 'Cython_IPEM/txt/' + filename + '_bitmap'
+        txtDataPath = Cython_IPEM_Folder + '/txt/' + filename + '_bitmap'
         with open(txtDataPath + '.txt', 'r') as file:
             inp = [[int(digit) for digit in line.split()] for line in file]
             inp = np.asarray(inp)

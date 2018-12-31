@@ -11,9 +11,5 @@ dist/*
 *.cfg
 FilterFrequencies.txt
 *.dat
-csv/*.csv
-png/*.png
-
-# even if they are in subdirectories
-!*/
-png/test.png
+LEGION-Nengo/csv/*.csv
+LEGION-Nengo/png/*.png

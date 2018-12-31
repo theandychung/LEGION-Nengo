@@ -29,11 +29,12 @@ class Oscillator(nengo.Network):
                 dy = epsilon * (gamma * (1 + np.tanh(x / beta)) - y)
                 return [tau * dx + x, tau * dy + y]
             nengo.Connection(self.ensemble, self.ensemble, function=feedback, synapse=self.syn)
-    def set_input(self,input):
+
+    def set_input(self, signal):
         """this function set a threshold for the input of oscillator"""
         with self:
-            self.input = nengo.Node(convertinp(input), label="input%d%d" % (self.x_f, self.x_t))
-            nengo.Connection(self.input,self.ensemble[0], synapse= self.syn)
+            self.input = nengo.Node(convertinp(signal), label="input%d%d" % (self.x_f, self.x_t))
+            nengo.Connection(self.input, self.ensemble[0], synapse=self.syn)
 
     def local_connect(self, OtherOscillator, tau):
         """local connection from this oscillator to other oscillator"""

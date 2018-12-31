@@ -1,11 +1,11 @@
 try:
-    import brian
+    import mycodecpy
 except:
     import warnings
     warnings.warn('Cython_IPEM not found, '
                   'you will only be able to analyze data files.')
 
-from setuptools import setup, find_packages
+from setuptools import setup
 
 setup(
     name='LEGION-Nengo',
